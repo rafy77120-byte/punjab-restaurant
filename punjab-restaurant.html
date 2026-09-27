@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Punjab Restaurant — Pizza & Fast Food</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#171310; --panel:#211b16; --line:#332a22; --ink:#f5ede1; --sub:#b8a894;
+  --yellow:#f2b705; --dark:#221c17;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:light){
+  :root:not([data-theme="dark"]){ --bg:#fbf6ec; --panel:#fff; --line:#ecdfc4; --ink:#221c17; --sub:#7a6c56; }
+}
+:root[data-theme="light"]{ --bg:#fbf6ec; --panel:#fff; --line:#ecdfc4; --ink:#221c17; --sub:#7a6c56; }
+html{scroll-padding-top:env(safe-area-inset-top,0px); height:100%;}
+*{box-sizing:border-box;}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:'Inter',sans-serif; height:100%; padding-bottom:76px;}
+.wrap{max-width:640px; margin:0 auto; padding:0 16px;}
+header{padding:18px 16px 14px; display:flex; align-items:center; gap:10px; border-bottom:1px solid var(--line); position:sticky; top:env(safe-area-inset-top,0px); background:var(--bg); z-index:5;}
+.logo{width:40px; height:40px; border-radius:50%; background:var(--yellow); display:flex; align-items:center; justify-content:center; font-size:20px;}
+h1{font-family:'Fraunces',serif; font-size:19px; margin:0;}
+header p{margin:1px 0 0; font-size:12px; color:var(--sub);}
+.info{max-width:640px; margin:0 auto; padding:12px 16px; font-size:13px; color:var(--sub); display:flex; flex-wrap:wrap; gap:6px 16px; border-bottom:1px solid var(--line);}
+.info b{color:var(--ink);}
+nav.cats{display:flex; overflow-x:auto; gap:8px; padding:10px 16px; border-bottom:1px solid var(--line); position:sticky; top:64px; background:var(--bg); z-index:4;}
+nav.cats a{white-space:nowrap; font-size:13px; color:var(--sub); text-decoration:none; padding:6px 12px; border:1px solid var(--line); border-radius:20px;}
+section{padding:22px 16px; border-bottom:1px solid var(--line);}
+section h2{font-family:'Fraunces',serif; font-size:18px; margin:0 0 12px;}
+.item{padding:10px 0; border-bottom:1px dashed var(--line); display:flex; justify-content:space-between; gap:10px; align-items:center;}
+.item:last-child{border-bottom:none;}
+.item .name{font-weight:600; font-size:14.5px;}
+.sizes{display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;}
+.sizebtn{font-size:12px; border:1px solid var(--line); background:transparent; color:var(--ink); border-radius:6px; padding:5px 9px;}
+.sizebtn b{color:var(--yellow); margin-left:4px;}
+.addbtn{border:none; background:var(--yellow); color:var(--dark); font-weight:700; font-size:13px; border-radius:6px; padding:7px 12px; white-space:nowrap;}
+.price{font-weight:600; color:var(--sub); font-size:13.5px; white-space:nowrap;}
+.right{display:flex; align-items:center; gap:10px;}
+footer{padding:22px 16px 30px; text-align:center; font-size:12px; color:var(--sub);}
+.bar{position:fixed; left:0; right:0; bottom:0; padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); background:var(--yellow); display:none; align-items:center; justify-content:space-between; z-index:10;}
+.bar.show{display:flex;}
+.bar span{color:var(--dark); font-weight:700; font-size:14px;}
+.bar button{border:none; background:var(--dark); color:#fff; font-weight:700; font-size:14px; border-radius:8px; padding:10px 16px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">🍕</div>
+  <div><h1>Punjab Restaurant</h1><p>Pizza & Fast Food · Family Hall with Live Kitchen</p></div>
+</header>
+<div class="info">
+  <span><b>📍</b> Marzi Pura St. # 9, Near Bilal Pan Shop, Narwala Road, Faisalabad</span>
+  <span><b>☎</b> 0302-1178611 / 0309-1278612</span>
+  <span>Min order Rs.400 within 5km · Free home delivery</span>
+</div>
+<nav class="cats" id="cats"></nav>
+<div class="wrap" id="menu"></div>
+<footer>Extra Dip Rs.50 · Extra Cheese/Chicken Topping available on request<br>Tap items to add, then tap "Order on WhatsApp" to send your order</footer>
+<div class="bar" id="bar"><span id="barText"></span><button onclick="checkout()">Order on WhatsApp</button></div>
+
+<script>
+const PV = {
+  reg:  [["S",450],["M",800],["L",1300],["XL",1700]],
+  spec: [["S",550],["M",1000],["L",1650],["XL",2100]],
+  crown:[["M",1150],["L",1850],["XL",2250]],
+  stuff:[["M",1200],["L",1900],["XL",2300]],
+};
+const MENU = [
+{c:"Deals", items:[
+  {n:"Deal 1 — Zinger Burger + Fries + Drink 500ml", p:599},
+  {n:"Deal 2 — 3 Zinger Burger + 5pc Nuggets + 1L Drink", p:1499},
+  {n:"Deal 3 — Large Pizza + 1L Drink", p:1399},
+  {n:"Deal 4 — 2 Medium Pizza + Hot Wings + Fries + 1L Drink", p:2299},
+  {n:"Deal 5 — 2 Large Pizza + 1.5L Drink", p:2999},
+  {n:"Deal 6 — Small + Medium + Large Pizza + 2L Drink", p:2899},
+  {n:"Deal 7 — Extra Large Pizza + 1.5L Drink", p:1999},
+  {n:"Deal 8 — Zinger Burger + Small Pizza + 300ml Drink", p:799},
+]},
+{c:"Burgers", items:[
+  {n:"Signature Grilled Chicken", p:580},{n:"Signature Grilled Beef", p:580},{n:"Smoke Grill", p:450},
+  {n:"Cheese Lava", p:650},{n:"Wild Big Bang", p:800},{n:"Cheetos Burger", p:600},
+  {n:"Spicy Jumbo Patty", p:300},{n:"Regular Zinger", p:300},{n:"Thunder Zinger", p:400},
+  {n:"Regular Fillet", p:380},{n:"Jumbo Fillet", p:599},
+]},
+{c:"Shawarmas & Parathas", items:[
+  {n:"Chicken Shawarma", p:200},{n:"Zinger Shawarma", p:250},{n:"Mix Shawarma", p:200},
+  {n:"Malai Shawarma", p:350},{n:"Grilled Shawarma", p:300},
+  {n:"Chicken Paratha", p:300},{n:"Zinger Paratha", p:350},{n:"Mix Paratha", p:350},
+  {n:"Malai Paratha", p:350},{n:"Kabab Paratha", p:350},
+]},
+{c:"Nuggets, Wings & Fries", items:[
+  {n:"Hot Wings (10pc)", p:500},{n:"BBQ Wings (10pc)", p:600},{n:"Crispy Wings (10pc)", p:500},
+  {n:"Grill Mayo Wings (10pc)", p:600},{n:"Hot Shot (10pc)", p:500},{n:"Nuggets (10pc)", p:500},
+  {n:"Regular Fries", p:200},{n:"Family Fries", p:350},{n:"Cheese Fries", p:400},
+  {n:"Mayo Fries", p:250},{n:"Zinger Fries", p:450},
+]},
+{c:"Sandwich, Wraps & Platters", items:[
+  {n:"Special Club Sandwich", p:650},{n:"Grill Chicken Sandwich", p:600},
+  {n:"Crispy Wrap", p:500},{n:"Grill Chicken Wrap", p:600},{n:"Mix Wrap", p:600},{n:"Malai Boti Wrap", p:500},
+  {n:"Special Platter (Spring Roll, Wings, Fries, Dip, Drink)", p:750},
+  {n:"Shawarma Platter (3 Bread, Chicken, Dip)", p:550},
+]},
+{c:"Soft Drinks", items:[
+  {n:"Regular", p:80},{n:"Half Liter", p:150},{n:"1 Liter", p:200},{n:"1.5 Liter", p:230},{n:"Tin Pack", p:150},
+]},
+{c:"Regular Flavour Pizza", items:[
+  {n:"Chicken Tikka", v:PV.reg},{n:"Chicken Fajita", v:PV.reg},{n:"Chicken Supreme", v:PV.reg},
+  {n:"Chicken Tandoori", v:PV.reg},{n:"Cheese Lover", v:PV.reg},{n:"Vega Lover", v:PV.reg},
+]},
+{c:"Special Pizza", items:[
+  {n:"White Special Pizza", v:PV.spec},{n:"Behari Kabab Pizza", v:PV.spec},
+  {n:"Malai Boti Pizza", v:PV.spec},{n:"Mughlai Pizza", v:PV.spec},{n:"Creamy Tikka Pizza", v:PV.spec},
+]},
+{c:"Sp. Crown Pizza", items:[
+  {n:"Royal Crust", v:PV.crown},{n:"Kabab Crust", v:PV.crown},{n:"Cheese Crust", v:PV.crown},{n:"Peri Peri", v:PV.crown},
+]},
+{c:"Sp. Stuffer Pizza", items:[
+  {n:"Kabab Stuffer", v:PV.stuff},{n:"Cheese Stuffer", v:PV.stuff},{n:"Chan n Cheese Stuffer", v:PV.stuff},
+]},
+{c:"Pasta's", items:[
+  {n:"Special Pasta", v:[["F1",500],["F2",700]]}, {n:"Alfredo Pasta", v:[["F1",500],["F2",700]]},
+  {n:"Crunchy Pasta", v:[["F1",450],["F2",650]]}, {n:"Creamy Pasta", v:[["F1",450],["F2",650]]},
+]},
+];
+
+let cart = {}; // key -> {name, price, qty}
+const catsEl = document.getElementById('cats');
+const menuEl = document.getElementById('menu');
+
+MENU.forEach((sec, si)=>{
+  const id = 'c'+si;
+  const a = document.createElement('a'); a.href = '#'+id; a.textContent = sec.c;
+  catsEl.appendChild(a);
+  const s = document.createElement('section'); s.id = id;
+  const h = document.createElement('h2'); h.textContent = sec.c; s.appendChild(h);
+  sec.items.forEach((it, ii)=>{
+    const row = document.createElement('div'); row.className='item';
+    if(it.p !== undefined){
+      const key = si+'-'+ii;
+      row.innerHTML = `<div><div class="name">${it.n}</div></div>
+        <div class="right"><span class="price">Rs.${it.p}</span><button class="addbtn" onclick="add('${key}','${it.n.replace(/'/g,"\\'")}',${it.p})">Add</button></div>`;
+    } else {
+      const sizesHtml = it.v.map((sz,vi)=>{
+        const key = si+'-'+ii+'-'+vi;
+        return `<button class="sizebtn" onclick="add('${key}','${it.n.replace(/'/g,"\\'")} (${sz[0]})',${sz[1]})">${sz[0]}<b>Rs.${sz[1]}</b></button>`;
+      }).join('');
+      row.innerHTML = `<div style="flex:1"><div class="name">${it.n}</div><div class="sizes">${sizesHtml}</div></div>`;
+    }
+    s.appendChild(row);
+  });
+  menuEl.appendChild(s);
+});
+
+function add(key, name, price){
+  if(!cart[key]) cart[key] = {name, price, qty:0};
+  cart[key].qty++;
+  renderBar();
+}
+function renderBar(){
+  const bar = document.getElementById('bar');
+  const items = Object.values(cart);
+  const count = items.reduce((a,b)=>a+b.qty,0);
+  const total = items.reduce((a,b)=>a+b.qty*b.price,0);
+  if(count>0){
+    bar.classList.add('show');
+    document.getElementById('barText').textContent = count+' item'+(count>1?'s':'')+' · Rs.'+total;
+  } else {
+    bar.classList.remove('show');
+  }
+}
+function checkout(){
+  const items = Object.values(cart);
+  if(!items.length) return;
+  let msg = "Order from Punjab Restaurant website:\n\n";
+  let total = 0;
+  items.forEach(i=>{
+    const sub = i.qty*i.price;
+    total += sub;
+    msg += `- ${i.name} x${i.qty} = Rs.${sub}\n`;
+  });
+  msg += `\nTotal: Rs.${total}\n\nName:\nAddress:\n`;
+  const url = "https://wa.me/923021178611?text=" + encodeURIComponent(msg);
+  const a = document.createElement('a');
+  a.href = url; a.target = '_blank'; a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+</script>
+</body>
+</html>
